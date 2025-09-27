@@ -26,3 +26,20 @@ This portfolio documents my **hands-on learning journey**.
 ---
 
 📌 More projects coming soon!
+
+Hi, I’m Nurul 👋  
+Currently a Risk Data Analyst (Fraud Detection) with a Master’s in Data Science.  
+Transitioning into Cybersecurity Analyst roles with a focus on **network traffic analysis, SIEM logs, and anomaly detection**.  
+
+This portfolio documents my **hands-on learning journey**.
+
+## Projects
+
+1. [PCAP Traffic Analysis](./pcap-analysis)  
+   Used Wireshark to identify suspicious traffic in sample PCAP files.  
+
+2. [Log Analysis (SIEM Simulation)](./log-analysis)  
+   Investigated anomalies in authentication logs with Python/Excel.  
+
+3. [Fraud → Cybersecurity Case Study](./fraud-to-cyber)  
+   How fraud detection workflows map to cybersecurity threat detection.
