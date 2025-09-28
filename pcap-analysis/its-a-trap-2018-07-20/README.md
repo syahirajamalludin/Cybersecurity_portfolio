@@ -1,1 +1,10 @@
-markdown # PCAP Analysis – "It's a Trap!" (2018-07-20) ## Tools Used - Wireshark ## Steps Taken 1. Opened PCAP in Wireshark 2. Checked **Protocol Hierarchy** – saw abnormal DNS & HTTP traffic 3. Looked at **Conversations** – one external IP dominated traffic 4. Followed **TCP Stream** – found HTTP GET request downloading `setup.exe` ## Findings - Multiple DNS queries to suspicious domains - HTTP request to download executable file - Likely malware delivery attempt from fake software site
+markdown 
+# PCAP Analysis – "It's a Trap!" (2018-07-20) 
+## Tools Used - Wireshark 
+## Steps Taken:
+1. Opened PCAP in Wireshark
+2. Checked **Protocol Hierarchy** – saw abnormal DNS & HTTP traffic
+3. Looked at **Conversations** – one external IP dominated traffic
+4. Followed **TCP Stream** – found HTTP GET request downloading `setup.exe`
+  
+## Findings - Multiple DNS queries to suspicious domains - HTTP request to download executable file - Likely malware delivery attempt from fake software site
