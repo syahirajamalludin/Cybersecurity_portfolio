@@ -1,4 +1,3 @@
-markdown 
 # PCAP Analysis – "It's a Trap!" (2018-07-20) 
 ## Tools Used - Wireshark 
 ## Steps Taken:
