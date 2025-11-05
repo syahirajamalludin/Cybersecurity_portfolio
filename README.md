@@ -7,16 +7,16 @@ Transitioning into Cybersecurity Analyst roles with a focus on **network traffic
 
 This portfolio documents my **hands-on learning journey**. 
 
-##Objectives
+## Objectives
 To incorporate skills learned to fill the gap in getiing into cybersecurity.
 
-##Skills
+## Skills
 
 
-##Tools
+## Tools
 
 
-##Certification
+## Certification
 
 
 ## Projects
