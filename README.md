@@ -16,7 +16,7 @@ To incorporate skills learned to fill the gap in getiing into cybersecurity.
 ![Security Core](https://img.shields.io/badge/Cisco-Security%20Core-orange)
 ![Web Content Security](https://img.shields.io/badge/Cisco-Web%20Content%20Security-green)
 
-## Projects by Skill Area and Certification
+## Projects by Skill Areas and Certifications
 | Certificates | Skills | Associated Projects | 
 | --- | --- | --- | 
 | CCNA |Access Connectivity <br> Architectures and Services <br> Assurance and Automation <br> Automation <br> Connectivity <br> Core Routing <br> High Availability and Fast Convergence <br> IP <br> IP services <br> Network Access <br> Network Fundamentals <br> Programability <br> Security <br> Security Fundamentals||
