@@ -19,7 +19,7 @@ To incorporate skills learned to fill the gap in getiing into cybersecurity.
 ## Skills
 | Certificates | Skills | Projects | 
 | --- | --- | --- | 
-| CCNA |||
+| CCNA |Access Connectivity <br> Architectures and Services <br> Assurance and Automation <br> Automation <br> Connectivity <br> Core Routing <br> High Availability and Fast Convergence <br> IP <br> IP services <br> Network Access <br> Network Fundamentals <br> Programability <br> Security <br> Security Fundamentals||
 | Cisco Certified Network Professional Security (CCNP Security) |||
 | Cisco Certified Specialist - Security Core |||
 | Cisco Certified Specialist - Web Content Security |||
