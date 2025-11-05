@@ -10,14 +10,19 @@ This portfolio documents my **hands-on learning journey**.
 ## Objectives
 To incorporate skills learned to fill the gap in getiing into cybersecurity.
 
-## Skills
+## Certifications 
+CCNA
+Cisco Certified Network Professional Security (CCNP Security)
+Cisco Certified Specialist - Security Core
+Cisco Certified Specialist - Web Content Security
 
+## Skills
+| CCNA | 
+| Cisco Certified Network Professional Security (CCNP Security) |
+| Cisco Certified Specialist - Security Core |
+| Cisco Certified Specialist - Web Content Security |
 
 ## Tools
-
-
-## Certification
-
 
 ## Projects
 
