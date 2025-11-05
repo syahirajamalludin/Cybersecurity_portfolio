@@ -5,7 +5,19 @@ Hi, I’m Nurul 👋
 Currently a Risk Data Analyst (Fraud Detection) with a Master’s in Data Science.  
 Transitioning into Cybersecurity Analyst roles with a focus on **network traffic analysis, SIEM logs, and anomaly detection.**  
 
-This portfolio documents my **hands-on learning journey**.  
+This portfolio documents my **hands-on learning journey**. 
+
+##Objectives
+To incorporate skills learned to fill the gap in getiing into cybersecurity.
+
+##Skills
+
+
+##Tools
+
+
+##Certification
+
 
 ## Projects
 
