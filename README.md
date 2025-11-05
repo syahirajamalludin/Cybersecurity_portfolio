@@ -12,7 +12,6 @@ To incorporate skills learned to fill the gap in getiing into cybersecurity.
 
 ## Certifications
 ![CCNA](https://img.shields.io/badge/Cisco-CCNA-blue)
-![Certifications](pictures/certifications.png)
 ![CCNP Security](https://img.shields.io/badge/Cisco-CCNP%20Security-red)
 ![Security Core](https://img.shields.io/badge/Cisco-Security%20Core-orange)
 ![Web Content Security](https://img.shields.io/badge/Cisco-Web%20Content%20Security-green)
