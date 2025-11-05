@@ -18,8 +18,11 @@ Cisco Certified Specialist - Web Content Security
 
 ## Skills
 | CCNA | <br>
+| --- | ----------- |
 | Cisco Certified Network Professional Security (CCNP Security) | <br>
+| --- | ----------- |
 | Cisco Certified Specialist - Security Core | <br>
+| --- | ----------- |
 | Cisco Certified Specialist - Web Content Security | <br>
 
 ## Tools
