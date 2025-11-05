@@ -20,9 +20,9 @@ To incorporate skills learned to fill the gap in getiing into cybersecurity.
 | Certificates | Skills | Projects | 
 | --- | --- | --- | 
 | CCNA |Access Connectivity <br> Architectures and Services <br> Assurance and Automation <br> Automation <br> Connectivity <br> Core Routing <br> High Availability and Fast Convergence <br> IP <br> IP services <br> Network Access <br> Network Fundamentals <br> Programability <br> Security <br> Security Fundamentals||
-| Cisco Certified Network Professional Security (CCNP Security) |||
-| Cisco Certified Specialist - Security Core |||
-| Cisco Certified Specialist - Web Content Security |||
+| Cisco Certified Network Professional Security (CCNP Security) |802.1x <br> Access Solutions <br> Advanced Malware Protection <br> AMP <br> CCNP <br> Cloud Web Security <br> Email Security <br> FirePOWER <br> Firewalls <br> IPS <br> ISE <br> Mobility Solutions <br> NCIPS <br> Security <br> Threat Control Solutions <br> TrustSec. <br> VPNs <br> Web Security||
+| Cisco Certified Specialist - Security Core |Cross-Site Scripting <br> DoS/DDoS Attacks <br> Endpoint Protection and Detection <br> Enforcement <br> Malware <br> man-in-the-middle attacks <br> Network Security <br> Phishing <br> Rootkits <br> Secure Network Access <br> Securing the Cloud <br> Security Concepts <br> SQL Injection <br> trojans <br> Viruses <br> Visibility||
+| Cisco Certified Specialist - Web Content Security |Acceptable Use Control <br> Authentication <br> Cisco WSA Features <br> Configuration <br> Decryption Policies To Control HTTPS Traffic <br> Differentiated <br> Traffic Access Policies <br> Malware Defense <br> Proxy Services <br> Reporting And Tracking Web Transactions||
 
 ## Tools
 
