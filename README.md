@@ -29,7 +29,7 @@ To apply the skills I've learned to close the gap into cybersecurity.
 | # | Project | What I did | Tools | Status |
 | --- | --- | --- | --- | --- |
 | 1 | [PCAP Traffic Analysis – "It's a Trap!"](./pcap-analysis/its-a-trap-2018-07-20) | Found abnormal DNS queries and an HTTP download of `setup.exe` — a likely malware delivery attempt | Wireshark | ✅ Done |
-| 2 | [Log Analysis – Brute-Force Detection](./log-analysis/brute-force) | Investigated failed logins in auth logs; flagged a spike from a single IP followed by a successful login | Python, Excel | 🚧 In progress |
+| 2 | [Log Analysis – Brute-Force Detection](./log-analysis/brute-force) | Analysed SSH auth logs; found one likely account compromise and one automated bot attack, with risk-ranked response steps | Python (pandas, matplotlib) | ✅ Done |
 | 3 | Fraud → Cybersecurity Case Study | How fraud detection workflows (anomaly detection, escalation, risk analysis) map to threat detection | — | 🔜 Coming soon |
 
 ## Projects by Skill Areas and Certifications
