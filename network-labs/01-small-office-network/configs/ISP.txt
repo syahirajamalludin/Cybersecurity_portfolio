@@ -1,0 +1,25 @@
+! ============================================================
+! ISP  (Cisco 2911)  — pretends to be "the internet"
+! It has NO routes to 192.168.x.x — that is why R1 needs NAT.
+! ============================================================
+enable
+configure terminal
+hostname ISP
+no ip domain-lookup
+
+interface GigabitEthernet0/0
+ description To customer R1-HQ
+ ip address 203.0.113.1 255.255.255.252
+ no shutdown
+!
+interface GigabitEthernet0/1
+ description "Internet" server farm
+ ip address 198.51.100.1 255.255.255.0
+ no shutdown
+!
+end
+write memory
+
+! ---- Server-INTERNET (Packet Tracer "Server", not a router) ----
+! IP 198.51.100.10 / 255.255.255.0, gateway 198.51.100.1
+! Services tab: HTTP = On, DNS = On, add A record: www.portfolio.lab -> 198.51.100.10

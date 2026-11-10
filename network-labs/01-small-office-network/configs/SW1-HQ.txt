@@ -1,0 +1,100 @@
+! ============================================================
+! SW1-HQ  (Cisco 2960)  — HQ access switch
+! Jobs: VLANs, trunk, port security, unused-port lockdown, SSH
+! ============================================================
+enable
+configure terminal
+hostname SW1-HQ
+no ip domain-lookup
+ip domain-name portfolio.lab
+enable secret Lab-Enable-2026
+username admin privilege 15 secret Lab-Admin-2026
+service password-encryption
+banner motd # Authorised access only. Activity is logged. #
+
+! ---------- 1. VLANs ----------
+vlan 10
+ name STAFF
+vlan 20
+ name FINANCE
+vlan 30
+ name GUEST
+vlan 99
+ name MGMT
+vlan 999
+ name PARKING_LOT
+
+! ---------- 2. Trunk to R1 ----------
+interface GigabitEthernet0/1
+ description TRUNK to R1-HQ Gi0/0
+ switchport mode trunk
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan 10,20,30,99,999
+ switchport nonegotiate
+
+! ---------- 3. Access ports + port security ----------
+interface range FastEthernet0/1 - 5
+ description STAFF desks
+ switchport mode access
+ switchport access vlan 10
+ switchport port-security
+ switchport port-security maximum 2
+ switchport port-security mac-address sticky
+ switchport port-security violation restrict
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface range FastEthernet0/6 - 10
+ description FINANCE desks
+ switchport mode access
+ switchport access vlan 20
+ switchport port-security
+ switchport port-security maximum 1
+ switchport port-security mac-address sticky
+ switchport port-security violation shutdown
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface range FastEthernet0/11 - 15
+ description GUEST area
+ switchport mode access
+ switchport access vlan 30
+ switchport port-security
+ switchport port-security maximum 2
+ switchport port-security violation restrict
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/24
+ description IT admin PC (MGMT)
+ switchport mode access
+ switchport access vlan 99
+ switchport port-security
+ switchport port-security mac-address sticky
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+
+! ---------- 4. Lock down unused ports ----------
+interface range FastEthernet0/16 - 23 , GigabitEthernet0/2
+ description UNUSED - shut
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+
+! ---------- 5. Management IP + SSH ----------
+interface Vlan99
+ ip address 192.168.99.2 255.255.255.0
+ no shutdown
+ip default-gateway 192.168.99.1
+!
+ip access-list standard MGMT-ONLY
+ permit 192.168.99.0 0.0.0.255
+crypto key generate rsa general-keys modulus 2048
+ip ssh version 2
+line vty 0 15
+ login local
+ transport input ssh
+ access-class MGMT-ONLY in
+!
+end
+write memory

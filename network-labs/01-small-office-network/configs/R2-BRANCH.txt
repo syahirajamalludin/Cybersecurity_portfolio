@@ -1,0 +1,44 @@
+! ============================================================
+! R2-BRANCH  (Cisco 2911)  — branch office router
+! Jobs: branch LAN gateway, DHCP relay to HQ, OSPF
+! ============================================================
+enable
+configure terminal
+hostname R2-BRANCH
+no ip domain-lookup
+ip domain-name portfolio.lab
+
+enable secret Lab-Enable-2026
+username admin privilege 15 secret Lab-Admin-2026
+service password-encryption
+banner motd # Authorised access only. Activity is logged. #
+
+interface GigabitEthernet0/0
+ description Branch LAN to SW2-BRANCH
+ ip address 192.168.50.1 255.255.255.0
+ ! Forward DHCP requests to the DHCP server on R1-HQ
+ ip helper-address 10.0.12.1
+ no shutdown
+!
+interface GigabitEthernet0/1
+ description Link to R1-HQ
+ ip address 10.0.12.2 255.255.255.252
+ no shutdown
+
+router ospf 1
+ router-id 2.2.2.2
+ passive-interface GigabitEthernet0/0
+ network 10.0.12.0 0.0.0.3 area 0
+ network 192.168.50.0 0.0.0.255 area 0
+
+ip access-list standard MGMT-ONLY
+ permit 192.168.99.0 0.0.0.255
+crypto key generate rsa general-keys modulus 2048
+ip ssh version 2
+line vty 0 4
+ login local
+ transport input ssh
+ access-class MGMT-ONLY in
+!
+end
+write memory

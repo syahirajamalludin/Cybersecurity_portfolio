@@ -1,0 +1,158 @@
+! ============================================================
+! R1-HQ  (Cisco 2911)  — HQ router
+! Jobs: inter-VLAN routing, DHCP server, OSPF, NAT, ACLs, SSH
+! Lab-only passwords. Never reuse them on real devices.
+! ============================================================
+enable
+configure terminal
+hostname R1-HQ
+no ip domain-lookup
+ip domain-name portfolio.lab
+
+! ---------- 1. Basic hardening ----------
+enable secret Lab-Enable-2026
+username admin privilege 15 secret Lab-Admin-2026
+service password-encryption
+security passwords min-length 10
+login block-for 120 attempts 3 within 60
+banner motd # Authorised access only. Activity is logged. #
+
+! ---------- 2. Router-on-a-stick (one cable, many VLANs) ----------
+interface GigabitEthernet0/0
+ description TRUNK to SW1-HQ Gi0/1
+ no ip address
+ no shutdown
+!
+interface GigabitEthernet0/0.10
+ description VLAN 10 STAFF
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
+ ip nat inside
+!
+interface GigabitEthernet0/0.20
+ description VLAN 20 FINANCE
+ encapsulation dot1Q 20
+ ip address 192.168.20.1 255.255.255.0
+ ip nat inside
+!
+interface GigabitEthernet0/0.30
+ description VLAN 30 GUEST
+ encapsulation dot1Q 30
+ ip address 192.168.30.1 255.255.255.0
+ ip nat inside
+!
+interface GigabitEthernet0/0.99
+ description VLAN 99 MGMT
+ encapsulation dot1Q 99
+ ip address 192.168.99.1 255.255.255.0
+ ip nat inside
+!
+interface GigabitEthernet0/0.999
+ description VLAN 999 NATIVE (unused, no IP)
+ encapsulation dot1Q 999 native
+
+! ---------- 3. WAN links ----------
+interface GigabitEthernet0/1
+ description WAN to ISP
+ ip address 203.0.113.2 255.255.255.252
+ ip nat outside
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description Link to R2-BRANCH
+ ip address 10.0.12.1 255.255.255.252
+ ip nat inside
+ no shutdown
+
+! ---------- 4. DHCP server (HQ + branch via relay) ----------
+ip dhcp excluded-address 192.168.10.1 192.168.10.10
+ip dhcp excluded-address 192.168.20.1 192.168.20.10
+ip dhcp excluded-address 192.168.30.1 192.168.30.10
+ip dhcp excluded-address 192.168.50.1 192.168.50.10
+!
+ip dhcp pool STAFF
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.1
+ dns-server 198.51.100.10
+!
+ip dhcp pool FINANCE
+ network 192.168.20.0 255.255.255.0
+ default-router 192.168.20.1
+ dns-server 198.51.100.10
+!
+ip dhcp pool GUEST
+ network 192.168.30.0 255.255.255.0
+ default-router 192.168.30.1
+ dns-server 198.51.100.10
+!
+ip dhcp pool BRANCH
+ network 192.168.50.0 255.255.255.0
+ default-router 192.168.50.1
+ dns-server 198.51.100.10
+
+! ---------- 5. Routing ----------
+ip route 0.0.0.0 0.0.0.0 203.0.113.1
+!
+router ospf 1
+ router-id 1.1.1.1
+ passive-interface default
+ no passive-interface GigabitEthernet0/2
+ network 10.0.12.0 0.0.0.3 area 0
+ network 192.168.10.0 0.0.0.255 area 0
+ network 192.168.20.0 0.0.0.255 area 0
+ network 192.168.30.0 0.0.0.255 area 0
+ network 192.168.99.0 0.0.0.255 area 0
+ default-information originate
+
+! ---------- 6. NAT (PAT) — all private ranges share the WAN IP ----------
+access-list 1 remark Private ranges allowed out to the internet
+access-list 1 permit 192.168.0.0 0.0.255.255
+ip nat inside source list 1 interface GigabitEthernet0/1 overload
+
+! ---------- 7. ACL: Guests get internet only ----------
+ip access-list extended GUEST-IN
+ remark Allow DHCP so guests can get an IP
+ permit udp any eq bootpc any eq bootps
+ remark Block guests from every internal network
+ deny ip 192.168.30.0 0.0.0.255 192.168.0.0 0.0.255.255
+ deny ip 192.168.30.0 0.0.0.255 10.0.0.0 0.255.255.255
+ remark Everything else (= internet) is allowed
+ permit ip 192.168.30.0 0.0.0.255 any
+!
+interface GigabitEthernet0/0.30
+ ip access-group GUEST-IN in
+
+! ---------- 8. ACL: Protect FINANCE (least privilege) ----------
+ip access-list extended FINANCE-OUT
+ remark Let replies to Finance-started sessions back in
+ permit tcp any 192.168.20.0 0.0.0.255 established
+ permit icmp any 192.168.20.0 0.0.0.255 echo-reply
+ remark IT/MGMT can reach Finance
+ permit ip 192.168.99.0 0.0.0.255 192.168.20.0 0.0.0.255
+ remark Nobody else internal can START a connection to Finance
+ deny ip 192.168.10.0 0.0.0.255 any
+ deny ip 192.168.30.0 0.0.0.255 any
+ deny ip 192.168.50.0 0.0.0.255 any
+ permit ip any any
+!
+interface GigabitEthernet0/0.20
+ ip access-group FINANCE-OUT out
+
+! ---------- 9. SSH only, only from MGMT VLAN ----------
+ip access-list standard MGMT-ONLY
+ permit 192.168.99.0 0.0.0.255
+!
+crypto key generate rsa general-keys modulus 2048
+ip ssh version 2
+!
+line console 0
+ login local
+ exec-timeout 5 0
+line vty 0 4
+ login local
+ transport input ssh
+ access-class MGMT-ONLY in
+ exec-timeout 5 0
+!
+end
+write memory

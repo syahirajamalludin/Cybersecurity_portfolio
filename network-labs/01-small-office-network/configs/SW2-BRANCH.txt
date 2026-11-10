@@ -1,0 +1,26 @@
+! ============================================================
+! SW2-BRANCH  (Cisco 2960)  — branch access switch (one VLAN)
+! ============================================================
+enable
+configure terminal
+hostname SW2-BRANCH
+no ip domain-lookup
+enable secret Lab-Enable-2026
+service password-encryption
+
+interface range FastEthernet0/1 - 10
+ description BRANCH users
+ switchport mode access
+ switchport port-security
+ switchport port-security maximum 2
+ switchport port-security mac-address sticky
+ switchport port-security violation restrict
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface range FastEthernet0/11 - 24 , GigabitEthernet0/2
+ description UNUSED - shut
+ shutdown
+!
+end
+write memory
