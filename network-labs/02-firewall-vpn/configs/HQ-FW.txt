@@ -1,0 +1,186 @@
+! ============================================================
+! HQ-FW  (Cisco 2911 + securityk9 license)
+! Jobs: Zone-Based Firewall (3 zones), site-to-site IPsec VPN,
+!       NAT with VPN exemption, DMZ port-forward, AAA (RADIUS), syslog
+! Lab-only passwords/keys. Never reuse them on real devices.
+! ============================================================
+
+! ---------- 0. Turn on the security license (then reload) ----------
+enable
+configure terminal
+license boot module c2900 technology-package securityk9
+! type "yes" to accept, then:
+end
+write memory
+reload
+! --- after reload ---
+enable
+configure terminal
+hostname HQ-FW
+no ip domain-lookup
+ip domain-name portfolio.lab
+service timestamps log datetime msec
+service password-encryption
+enable secret Lab-Enable-2026
+username localadmin privilege 15 secret Lab-Local-2026
+login block-for 120 attempts 3 within 60
+
+! ---------- 1. Interfaces ----------
+interface GigabitEthernet0/0
+ description INSIDE - HQ LAN
+ ip address 172.16.10.1 255.255.255.0
+ ip nat inside
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description DMZ - public web server
+ ip address 172.16.99.1 255.255.255.0
+ ip nat inside
+ no shutdown
+!
+interface GigabitEthernet0/1
+ description OUTSIDE - to ISP
+ ip address 203.0.113.2 255.255.255.252
+ ip nat outside
+ no shutdown
+!
+ip route 0.0.0.0 0.0.0.0 203.0.113.1
+
+! ---------- 2. NAT ----------
+! VPN traffic must NOT be NATed, otherwise it no longer matches the VPN rule.
+ip access-list extended NAT-HQ
+ remark 1) Exempt HQ->Branch from NAT (goes through the VPN instead)
+ deny ip 172.16.10.0 0.0.0.255 172.16.20.0 0.0.0.255
+ remark 2) Everything else from HQ LAN gets PAT to the internet
+ permit ip 172.16.10.0 0.0.0.255 any
+!
+ip nat inside source list NAT-HQ interface GigabitEthernet0/1 overload
+! Publish ONLY port 80 of the DMZ web server to the internet
+ip nat inside source static tcp 172.16.99.10 80 203.0.113.2 80
+
+! ---------- 3. Site-to-site IPsec VPN (to Branch) ----------
+! Phase 1 (IKE): how the two firewalls prove who they are
+crypto isakmp policy 10
+ encryption aes 256
+ hash sha
+ authentication pre-share
+ group 5
+ lifetime 86400
+crypto isakmp key Lab-VPN-Key-2026 address 198.51.100.2
+!
+! Phase 2 (IPsec): how the actual data is encrypted
+crypto ipsec transform-set TS-AES256 esp-aes 256 esp-sha-hmac
+!
+! "Interesting traffic" = what goes into the tunnel
+access-list 120 remark VPN: HQ LAN <-> Branch LAN
+access-list 120 permit ip 172.16.10.0 0.0.0.255 172.16.20.0 0.0.0.255
+!
+crypto map VPN-MAP 10 ipsec-isakmp
+ description Tunnel to BRANCH-FW
+ set peer 198.51.100.2
+ set transform-set TS-AES256
+ set security-association lifetime seconds 3600
+ match address 120
+!
+interface GigabitEthernet0/1
+ crypto map VPN-MAP
+
+! ---------- 4. Zone-Based Firewall ----------
+zone security INSIDE
+zone security OUTSIDE
+zone security DMZ
+!
+interface GigabitEthernet0/0
+ zone-member security INSIDE
+interface GigabitEthernet0/1
+ zone-member security OUTSIDE
+interface GigabitEthernet0/2
+ zone-member security DMZ
+!
+! --- What traffic are we talking about? (class-maps) ---
+access-list 110 remark Branch LAN arriving through the VPN
+access-list 110 permit ip 172.16.20.0 0.0.0.255 172.16.10.0 0.0.0.255
+access-list 111 remark HQ LAN going to Branch through the VPN
+access-list 111 permit ip 172.16.10.0 0.0.0.255 172.16.20.0 0.0.0.255
+access-list 112 remark Only HTTP to the DMZ web server
+access-list 112 permit tcp any host 172.16.99.10 eq www
+!
+class-map type inspect match-any CM-USER-TRAFFIC
+ match protocol http
+ match protocol https
+ match protocol dns
+ match protocol icmp
+class-map type inspect match-all CM-FROM-BRANCH
+ match access-group 110
+class-map type inspect match-all CM-TO-BRANCH
+ match access-group 111
+class-map type inspect match-all CM-DMZ-WEB
+ match access-group 112
+!
+! --- What do we do with it? (policy-maps) ---
+policy-map type inspect PM-IN-TO-OUT
+ class type inspect CM-TO-BRANCH
+  inspect
+ class type inspect CM-USER-TRAFFIC
+  inspect
+ class class-default
+  drop log
+!
+policy-map type inspect PM-OUT-TO-IN
+ class type inspect CM-FROM-BRANCH
+  inspect
+ class class-default
+  drop log
+!
+policy-map type inspect PM-OUT-TO-DMZ
+ class type inspect CM-DMZ-WEB
+  inspect
+ class class-default
+  drop log
+!
+policy-map type inspect PM-IN-TO-DMZ
+ class type inspect CM-USER-TRAFFIC
+  inspect
+ class class-default
+  drop log
+!
+! --- Which direction does each policy apply to? (zone-pairs) ---
+zone-pair security ZP-IN-OUT source INSIDE destination OUTSIDE
+ service-policy type inspect PM-IN-TO-OUT
+zone-pair security ZP-OUT-IN source OUTSIDE destination INSIDE
+ service-policy type inspect PM-OUT-TO-IN
+zone-pair security ZP-OUT-DMZ source OUTSIDE destination DMZ
+ service-policy type inspect PM-OUT-TO-DMZ
+zone-pair security ZP-IN-DMZ source INSIDE destination DMZ
+ service-policy type inspect PM-IN-TO-DMZ
+!
+! NOTE: there is NO zone-pair from DMZ to INSIDE or DMZ to OUTSIDE.
+! No zone-pair = all traffic dropped. If the web server is hacked,
+! it cannot attack the HQ LAN or "call home" to the attacker.
+
+! ---------- 5. AAA: admins log in with RADIUS accounts ----------
+aaa new-model
+radius-server host 172.16.10.100 key Lab-Radius-2026
+aaa authentication login default group radius local
+aaa authentication login CONSOLE local
+!
+crypto key generate rsa general-keys modulus 2048
+ip ssh version 2
+access-list 10 remark Only HQ LAN may manage the firewall
+access-list 10 permit 172.16.10.0 0.0.0.255
+!
+line console 0
+ login authentication CONSOLE
+ exec-timeout 5 0
+line vty 0 4
+ login authentication default
+ transport input ssh
+ access-class 10 in
+ exec-timeout 5 0
+
+! ---------- 6. Send logs to the syslog server (SOC visibility) ----------
+logging host 172.16.10.100
+logging trap informational
+!
+end
+write memory

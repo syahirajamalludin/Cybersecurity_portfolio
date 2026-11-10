@@ -1,0 +1,66 @@
+! ============================================================
+! BRANCH-FW  (Cisco 2911 + securityk9 license)
+! Jobs: mirror side of the site-to-site VPN, NAT with VPN exemption
+! (Bonus challenge: add a Zone-Based Firewall here yourself!)
+! ============================================================
+enable
+configure terminal
+license boot module c2900 technology-package securityk9
+end
+write memory
+reload
+! --- after reload ---
+enable
+configure terminal
+hostname BRANCH-FW
+no ip domain-lookup
+service timestamps log datetime msec
+service password-encryption
+enable secret Lab-Enable-2026
+
+interface GigabitEthernet0/0
+ description INSIDE - Branch LAN
+ ip address 172.16.20.1 255.255.255.0
+ ip nat inside
+ no shutdown
+!
+interface GigabitEthernet0/1
+ description OUTSIDE - to ISP
+ ip address 198.51.100.2 255.255.255.252
+ ip nat outside
+ no shutdown
+!
+ip route 0.0.0.0 0.0.0.0 198.51.100.1
+
+! NAT with VPN exemption
+ip access-list extended NAT-BRANCH
+ deny ip 172.16.20.0 0.0.0.255 172.16.10.0 0.0.0.255
+ permit ip 172.16.20.0 0.0.0.255 any
+ip nat inside source list NAT-BRANCH interface GigabitEthernet0/1 overload
+
+! VPN — must MATCH HQ exactly (policy, key, transform-set),
+! with the ACL written the OTHER way round.
+crypto isakmp policy 10
+ encryption aes 256
+ hash sha
+ authentication pre-share
+ group 5
+ lifetime 86400
+crypto isakmp key Lab-VPN-Key-2026 address 203.0.113.2
+crypto ipsec transform-set TS-AES256 esp-aes 256 esp-sha-hmac
+!
+access-list 120 remark VPN: Branch LAN <-> HQ LAN (mirror of HQ)
+access-list 120 permit ip 172.16.20.0 0.0.0.255 172.16.10.0 0.0.0.255
+!
+crypto map VPN-MAP 10 ipsec-isakmp
+ description Tunnel to HQ-FW
+ set peer 203.0.113.2
+ set transform-set TS-AES256
+ set security-association lifetime seconds 3600
+ match address 120
+!
+interface GigabitEthernet0/1
+ crypto map VPN-MAP
+!
+end
+write memory

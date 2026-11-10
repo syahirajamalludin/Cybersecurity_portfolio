@@ -1,0 +1,36 @@
+! ============================================================
+! ISP  (Cisco 2911) — "the internet" in the middle
+! All its networks are directly connected, so no routes needed.
+! It knows NOTHING about 172.16.x.x — private IPs never cross the internet.
+! ============================================================
+enable
+configure terminal
+hostname ISP
+no ip domain-lookup
+interface GigabitEthernet0/0
+ description To HQ-FW
+ ip address 203.0.113.1 255.255.255.252
+ no shutdown
+interface GigabitEthernet0/1
+ description To BRANCH-FW
+ ip address 198.51.100.1 255.255.255.252
+ no shutdown
+interface GigabitEthernet0/2
+ description Internet user / attacker
+ ip address 192.0.2.1 255.255.255.0
+ no shutdown
+end
+write memory
+
+! ============================================================
+! End devices (Desktop -> IP Configuration, all static)
+! ============================================================
+! PC-HQ          172.16.10.10  /24  gw 172.16.10.1
+! Server-AAA     172.16.10.100 /24  gw 172.16.10.1
+!   Services -> AAA:   ON
+!     Client: HQ-FW | IP 172.16.10.1 | Secret Lab-Radius-2026 | Type Radius
+!     User:   netadmin / Lab-NetAdmin-2026
+!   Services -> SYSLOG: ON
+! Server-DMZ-Web 172.16.99.10  /24  gw 172.16.99.1   (Services -> HTTP: ON)
+! PC-Branch      172.16.20.10  /24  gw 172.16.20.1
+! PC-Internet    192.0.2.10    /24  gw 192.0.2.1     (plays the outsider/attacker)
