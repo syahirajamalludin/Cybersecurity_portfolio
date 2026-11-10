@@ -1,0 +1,12 @@
+# Run the proxy:   docker compose up -d
+# Test it:         curl -x http://student:Lab-Proxy-2026@localhost:3128 -I http://example.com
+# Watch the log:   docker compose exec squid tail -f /var/log/squid/access.log
+services:
+  squid:
+    image: ubuntu/squid:latest
+    ports:
+      - "3128:3128"
+    volumes:
+      - ./squid.conf:/etc/squid/squid.conf:ro
+      - ./blocklists:/etc/squid/blocklists:ro
+      - ./passwords:/etc/squid/passwords:ro

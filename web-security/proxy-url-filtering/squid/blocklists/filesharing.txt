@@ -1,0 +1,4 @@
+# File sharing
+.wetransfer.com
+.mega.nz
+.dropbox.com

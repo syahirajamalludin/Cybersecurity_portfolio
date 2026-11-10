@@ -1,0 +1,4 @@
+# Phishing domains
+.secure-bank-login.test
+.office365-verify.test
+.parcel-redelivery.test
