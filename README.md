@@ -28,12 +28,13 @@ To apply the skills I've learned to close the gap into cybersecurity.
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?logo=scikitlearn&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+![Scapy](https://img.shields.io/badge/Scapy-555555)
 
 ## Projects
 
 | # | Project | What I did | Tools | Status |
 | --- | --- | --- | --- | --- |
-| 1 | [PCAP Traffic Analysis – "It's a Trap!"](./pcap-analysis/its-a-trap-2018-07-20) | Found abnormal DNS queries and an HTTP download of `setup.exe` — a likely malware delivery attempt | Wireshark | ✅ Done |
+| 1 | [PCAP Traffic Analysis – "It's a Trap!"](./pcap-analysis/its-a-trap-2018-07-20) | Traced a fake-software infection end to end: `setup.exe` download, a second-stage program disguised as a `.png`, and C2 check-ins every 60 s — the smallest conversation in the capture. Wireshark by hand, then automated in Python | Wireshark, Python (scapy) | ✅ Done |
 | 2 | [Log Analysis – Brute-Force & Credential Stuffing](./log-analysis/brute-force) | Detected two password-based attacks in SSH logs, including a credential-stuffing break-in that per-account alerts would miss; linked to Malaysia's rising credential-theft trend | Python (pandas, matplotlib) | ✅ Done |
 | 3 | [Network Lab – Secure Small Office Network](./network-labs/01-small-office-network) | Designed an HQ + branch network with 4 VLANs, OSPF, DHCP relay, NAT, and ACLs that isolate guests and protect Finance; hardened with SSH-only access and port security | Cisco Packet Tracer, Cisco IOS | 🛠️ Configs ready · lab build in progress |
 | 4 | [Network Lab – Zone-Based Firewall + Site-to-Site VPN](./network-labs/02-firewall-vpn) | Designed a 3-zone firewall (Inside/DMZ/Outside) where a hacked web server can't reach the office, an AES-256 IPsec tunnel to a branch with NAT exemption, RADIUS admin logins, and syslog | Cisco Packet Tracer, Cisco IOS | 🛠️ Configs ready · lab build in progress |
